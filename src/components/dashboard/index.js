@@ -12,6 +12,7 @@ import AddProduct from './components/AddProduct';
 import Product from './components/Product';
 import Profile from './components/Profile';
 import AddProfile from './components/AddProfile';
+import AddImages from './components/AddImages';
 
 // function ActiveNav({
 //   to,
@@ -231,9 +232,10 @@ class Dashboard extends Component {
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/addProduct" element={<AddProduct />} />
-                <Route path="/products" element={<Product />} />
+                <Route path="/products/*" element={<Product />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/addprofile" element={<AddProfile />} />
+                <Route path="/products/:id/addimages" element={<AddImages />} />
               </Routes>
             </div>
           </div>

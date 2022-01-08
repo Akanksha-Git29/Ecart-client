@@ -5,13 +5,19 @@ import { Link } from 'react-router-dom';
 
 const { Meta } = Card;
 
-const Products = ({product, description, buttonName, link}) => {
+const Products = ({
+    product,
+    description, 
+    uploadImages, 
+    link,
+    showBtn
+    }) => {
     return (
         <div style={{display:"flex"}}>
             <Link to={link || ""}>
                 <Card
                     hoverable
-                    style={{ width: 300 }}
+                    style={{ width: 400 }}
                     cover={
                         <img
                             alt="example"
@@ -23,7 +29,7 @@ const Products = ({product, description, buttonName, link}) => {
                         title={product.name}
                         description={description}
                     />
-                    <Button type="primary">{buttonName}</Button>
+                    {showBtn && <Link className='btn btn-primary' to={uploadImages || ""}>Add Images</Link>}
                 </Card>,
             </Link>
         </div>

@@ -4,16 +4,18 @@ import "../../App.css"
 import { connect } from 'react-redux'
 import { logout } from '../../actions/authAction'
 
-const NavBAr = ({auth : {isAuthenticated}, logout}) => {
-
-    const user = (
+const NavBAr = ({auth : {isAuthenticated, user}, logout}) => {
+    // console.log(user)
+    const authUser = (
         <ul>
             <li className='nav-li'>
                 <Link to="/dashboard">Dashboard</Link>
             </li>
-            <li className='nav-li'>
-                <Link to="/register?role=merchant">Become A Merchants</Link>
-            </li>
+            {user.role !== 'merchant' && (
+                <li className='nav-li'>
+                    <Link to="/register?role=merchant">Become A Merchants</Link>
+                </li>
+            )}
             <li className='nav-li'>
                 <Link to="/cart"><i className="fas fa-cart-arrow-down"></i>My Cart</Link>
             </li>
@@ -46,7 +48,7 @@ const NavBAr = ({auth : {isAuthenticated}, logout}) => {
                     <i className='fas fa-store'></i> E-Cart
                 </Link>
             </h1>
-            {isAuthenticated ? user : guest}
+            {isAuthenticated ? authUser : guest}
         </nav>
     )
 }

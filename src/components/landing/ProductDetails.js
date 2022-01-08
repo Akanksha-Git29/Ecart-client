@@ -2,11 +2,12 @@ import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux';
 import { useParams, useLocation, useNavigate, Link } from 'react-router-dom'
 import { getProduct } from '../../actions/productAction';
-import { Spin, Space, Button, Rate, Modal, Alert ,message} from 'antd';
+import { Spin, Space, Button, Rate, Modal, Alert, message } from 'antd';
 import NavBar from '../general/NavBAr'
-import {isEmpty} from 'lodash'
+import { isEmpty } from 'lodash'
 import { decodeUser } from '../../util';
 import { addToCart } from '../../actions/cartActions';
+import {getProfile} from '../../actions/profileAction'
 
 export const withRouter = (Component) => { //works only for react16-17 //hooks
     const Wrapper = (props) => {
@@ -34,7 +35,8 @@ class ProductDetails extends Component {
         super(props)
         this.state = {
             product: null,
-            visible: false
+            visible: false,
+            gotProfile: false,
         }
     }
 
@@ -46,9 +48,14 @@ class ProductDetails extends Component {
 
     componentWillReceiveProps(nextProps) {
         console.log(nextProps)
+        const product = nextProps.product;
         if (nextProps && nextProps.product) {
             const product = nextProps.product
             this.setState({ product })
+        }
+        if (!this.state.gotProfile) {
+            this.props.getProfile(product.userId);
+            this.setState({ gotProfile: true });
         }
     }
 
@@ -83,7 +90,7 @@ class ProductDetails extends Component {
                 ]}
             >
                 <div>
-                    <br/>
+                    <br />
                     <Alert
                         message={
                             <center>
@@ -107,34 +114,74 @@ class ProductDetails extends Component {
         )
     }
 
-    async addProductsToCart(product){
+    async addProductsToCart(product) {
         //check if signed in
         // if not use localStorage rather than our backend
-        if(!localStorage.getItem("token")){
+        if (!localStorage.getItem("token")) {
             const productExsists = !isEmpty(localStorage.getItem("products"))
-            if(productExsists){
+            if (productExsists) {
                 const products = JSON.parse(localStorage.getItem("products"))
                 products.push(product._id)
                 this.showModal()
-                return localStorage.setItem("products",JSON.stringify([product._id]))
+                return localStorage.setItem("products", JSON.stringify([product._id]))
             }
-            else{
+            else {
                 this.showModal()
-                return localStorage.setItem("products",JSON.stringify([product._id]))
-                
+                return localStorage.setItem("products", JSON.stringify([product._id]))
+
             }
         }
 
         const userId = decodeUser().user.id
-        const context = {products:[product._id],userId}
+        const context = { products: [product._id], userId }
         await this.props.addToCart(context)
         // this.setState({product})
         this.showModal()
     }
 
     render() {
-        console.log(this.state.product)
+        // console.log(this.state.product)
+        const { profile } = this.props;
+        console.log(profile);
         const { product } = this.state
+        let facebook,
+            instagram,
+            twitter,
+            linkedin = "";
+        if (profile) {
+            if (
+                profile.socialMedia.facebook &&
+                !profile.socialMedia.facebook.substring(0, 4).includes("http")
+            ) {
+                facebook = `http${profile.socialMedia.facebook}`;
+            } else {
+                facebook = profile.socialMedia.facebook;
+            }
+            if (
+                profile.socialMedia.instagram &&
+                !profile.socialMedia.instagram.substring(0, 4).includes("http")
+            ) {
+                instagram = `http${profile.socialMedia.instagram}`;
+            } else {
+                instagram = profile.socialMedia.instagram;
+            }
+            if (
+                profile.socialMedia.twitter &&
+                !profile.socialMedia.twitter.substring(0, 4).includes("http")
+            ) {
+                twitter = `http${profile.socialMedia.twitter}`;
+            } else {
+                twitter = profile.socialMedia.twitter;
+            }
+            if (
+                profile.socialMedia.linkedin &&
+                !profile.socialMedia.linkedin.substring(0, 4).includes("http")
+            ) {
+                linkedin = `http${profile.socialMedia.linkedin}`;
+            } else {
+                linkedin = profile.socialMedia.linkedin;
+            }
+        }
         return (
             <Fragment>
                 <NavBar />
@@ -163,10 +210,10 @@ class ProductDetails extends Component {
                                         Quantity: {product.quantity}
                                     </p>
                                     <h2>INR: {product.price} </h2>
-                                    <Button 
-                                        type='primary' style={{ marginBottom: "3rem" }} 
-                                        onClick={(_)=> this.addProductsToCart(product)} > 
-                                        {" "} 
+                                    <Button
+                                        type='primary' style={{ marginBottom: "3rem" }}
+                                        onClick={(_) => this.addProductsToCart(product)} >
+                                        {" "}
                                         Add To Cart
                                     </Button>
                                 </div>
@@ -192,6 +239,111 @@ class ProductDetails extends Component {
                                 <Spin size="large" />
                             </Space>
                         )}
+                    <br />
+                    <h3>Seller Information</h3>
+                    {profile && (
+                        <Fragment>
+                            <nav>
+                                <div className="nav nav-tabs" id="nav-tab" role="tablist">
+                                    <a
+                                        className="nav-item nav-link active"
+                                        id="nav-home-tab"
+                                        data-toggle="tab"
+                                        href="#nav-home"
+                                        role="tab"
+                                        aria-controls="nav-home"
+                                        aria-selected="true"
+                                    >
+                                        Home
+                                    </a>
+                                    <a
+                                        className="nav-item nav-link"
+                                        id="nav-profile-tab"
+                                        data-toggle="tab"
+                                        href="#nav-profile"
+                                        role="tab"
+                                        aria-controls="nav-profile"
+                                        aria-selected="false"
+                                    >
+                                        Social Media
+                                    </a>
+                                    <a
+                                        className="nav-item nav-link"
+                                        id="nav-contact-tab"
+                                        data-toggle="tab"
+                                        href="#nav-contact"
+                                        role="tab"
+                                        aria-controls="nav-contact"
+                                        aria-selected="false"
+                                    >
+                                        Contact
+                                    </a>
+                                </div>
+                            </nav>
+                            <div className="tab-content" id="nav-tabContent">
+                                <div
+                                    className="tab-pane fade show active"
+                                    id="nav-home"
+                                    role="tabpanel"
+                                    aria-labelledby="nav-home-tab"
+                                >
+                                    <br />
+                                    <h4 style={{ textDecoration: "underline" }}>About Seller</h4>
+                                    {profile.bio && <p className="lead">{profile.bio}</p>}
+                                </div>
+                                <div
+                                    className="tab-pane fade"
+                                    id="nav-profile"
+                                    role="tabpanel"
+                                    aria-labelledby="nav-profile-tab"
+                                >
+                                    <br />
+                                    <h4>Follow Us with the links below:</h4>
+                                    <div className="row">
+                                        {facebook && (
+                                            <span className="social_icons">
+                                                <a href={facebook} target="_blank">
+                                                    <i className="fab fa-facebook fa-2x"></i>
+                                                </a>
+                                            </span>
+                                        )}
+                                        {instagram && (
+                                            <span className="social_icons">
+                                                <a href={instagram} target="_blank">
+                                                    <i className="fab fa-instagram fa-2x"></i>
+                                                </a>
+                                            </span>
+                                        )}
+                                        {twitter && (
+                                            <span className="social_icons">
+                                                <a href={twitter} target="_blank">
+                                                    <i className="fab fa-twitter fa-2x"></i>
+                                                </a>
+                                            </span>
+                                        )}
+                                        {linkedin && (
+                                            <span className="social_icons">
+                                                <a href={linkedin} target="_blank">
+                                                    <i className="fab fa-linkedin fa-2x"></i>
+                                                </a>
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                                <div
+                                    className="tab-pane fade"
+                                    id="nav-contact"
+                                    role="tabpanel"
+                                    aria-labelledby="nav-contact-tab"
+                                >
+                                    <br />
+                                    {profile.address && (
+                                        <p className="lead">Address: {profile.address}</p>
+                                    )}
+                                </div>
+                            </div>
+                        </Fragment>
+                    )}
                 </div>
                 {product && this.registerModal(product)}
             </Fragment>
@@ -203,4 +355,4 @@ const mapStateToProps = (state) => ({
     product: state.products.product,
 });
 
-export default connect(mapStateToProps, { getProduct, addToCart })(withRouter(ProductDetails))
+export default connect(mapStateToProps, { getProduct, addToCart, getProfile })(withRouter(ProductDetails))

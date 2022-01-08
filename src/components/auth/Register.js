@@ -45,9 +45,9 @@ class Register extends Component {
         let split = search.split("redirect=")
         split = split[split.length-1]
         const hasRedirect = search.includes("redirect")
-        console.log(split)
+        // console.log(split)
 
-        console.log(nextProps)
+        // console.log(nextProps)
         if(nextProps && nextProps.auth.errors && nextProps.auth.errors.length > 0){
             nextProps.auth.errors.forEach(error => {
                 message.error(error.msg)
@@ -80,8 +80,9 @@ class Register extends Component {
 
     OnSubmit(){
         let splitrole = this.props.location.search.split("?role=")
-        splitrole = splitrole[role.length-1].split("&")
+        splitrole = splitrole[splitrole.length-1].split("&")
         const role = splitrole[0]
+
         const {name,email,password} = this.state
         const newUser = {
             name,
